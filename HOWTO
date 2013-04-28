@@ -1,0 +1,10 @@
+DGP-DEC is a base code for digital geometry processing (DGP) applications. It provides
+a simple and practical interface for typical geometry operations based on the framework
+of Discrete Exterior Calculus (DEC). 
+
+To develop your own application, you have to edit at least two files:
+1) Add code for your application in include/Application.h 
+2) Instantiate class Application inside Viewer::mProcess() in src/Viewer.cpp
+
+Fernando de Goes
+Keenan Crane
