@@ -92,9 +92,19 @@ namespace DDG
       std::vector<Face>     boundaries;
       // storage for mesh elements
 
+      SparseFactor<Real> L;
+      // pre-factorization of Laplacian
+
       typedef std::vector<HalfEdgeIter> Generator;
       std::vector<Generator> generators;
-
+      // non-contractible loops
+      
+      bool isBoundaryGenerator(const Generator& cycle) const;
+      // returns true if generator is a boundary loop
+      
+      void init();
+      
+      
    protected:
       std::string inputFilename;
       

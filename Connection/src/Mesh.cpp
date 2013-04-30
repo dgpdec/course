@@ -3,6 +3,8 @@
 #include "Mesh.h"
 #include "MeshIO.h"
 #include "DiscreteExteriorCalculus.h"
+#include "Direction.h"
+#include "TreeCotree.h"
 
 using namespace std;
 
@@ -187,4 +189,33 @@ namespace DDG
       }
       return sum / edges.size();
    }
+   
+   bool Mesh :: isBoundaryGenerator(const Generator& cycle) const
+   {
+      if( cycle.size() == 0 ) return false;
+      return ( cycle[0]->vertex->onBoundary() or
+               cycle[0]->flip->vertex->onBoundary() );
+
+   }
+
+   void Mesh :: init()
+   {
+      // Laplacian with Neumann boundary condition
+      SparseMatrix<Real> star0, star1, d0, Delta;
+      HodgeStar0Form<Real>::build( *this, star0 );
+      HodgeStar1Form<Real>::build( *this, star1 );
+      ExteriorDerivative0Form<Real>::build( *this, d0 );
+      Delta = d0.transpose() * star1 * d0;
+      
+      // make L positive-definite
+      Delta += Real(1.0e-8)*star0;
+      
+      // pre-factorize
+      this->L.build(Delta);
+      
+      // generators
+      TreeCotree tct;
+      tct.build( *this );
+   }
+   
 }

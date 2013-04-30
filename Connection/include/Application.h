@@ -7,7 +7,6 @@
  * Fernando de Goes and Keenan Crane
  *
  * TODO: gui to edit singularity indices
- * TODO: pre-factorize matrices
  * TODO: add soft and hard directional constraints
  */
 
@@ -29,8 +28,6 @@ namespace DDG
       void solveForConneciton(Mesh& mesh)
       {
          // For simplicity, tagged vertices have equal index
-         // TODO: handle multiple indices
-         
          setConstantIndex(mesh);
          
          solveForCurvature(mesh);
@@ -72,7 +69,7 @@ namespace DDG
       {
          // RHS
          DenseMatrix<Real> b( mesh.vertices.size() );
-         bool ok = buildAngleDefect(mesh, b);
+         bool ok = buildAngleDefect( mesh, b );
          
          if( not ok )
          {
@@ -86,20 +83,10 @@ namespace DDG
             return;
          }
          
-         // Laplacian with Neumann boundary condition
-         SparseMatrix<Real> star0, star1, d0, L;
-         HodgeStar0Form<Real>::build( mesh, star0 );
-         HodgeStar1Form<Real>::build( mesh, star1 );
-         ExteriorDerivative0Form<Real>::build( mesh, d0 );
-         L = d0.transpose() * star1 * d0;
-         
-         // make L positive-definite
-         L += Real(1.0e-8)*star0;
-
          // Potential
          DenseMatrix<Real> u;
-         solvePositiveDefinite(L, u, b);
-         assignPotential(u, mesh);
+         backsolvePositiveDefinite( mesh.L, u, b );
+         assignPotential( u, mesh );
       }
       
       bool buildAngleDefect(const Mesh& mesh, DenseMatrix<Real>& b) const

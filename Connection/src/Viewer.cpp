@@ -11,7 +11,6 @@ using namespace std;
 #include "Image.h"
 #include "Application.h"
 #include "Direction.h"
-#include "TreeCotree.h"
 
 namespace DDG
 {
@@ -274,9 +273,7 @@ namespace DDG
    void Viewer :: mResetMesh( void )
    {
       mesh.reload();
-
-      TreeCotree tct;
-      tct.build(mesh);
+      mesh.init();
 
       DirectionField field;
       field.generate( mesh, angle );
@@ -685,11 +682,15 @@ namespace DDG
       
       glEnable( GL_COLOR_MATERIAL );
       glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-      glColor3d(0.0,0.5,0.0);
       glLineWidth(3.0);
 
       for(unsigned i = 0; i < mesh.generators.size(); ++i)
       {
+         if( mesh.isBoundaryGenerator( mesh.generators[i] ) )
+            glColor3d(0.0,0.0,0.5);
+         else
+            glColor3d(0.0,0.5,0.0);
+
          for(unsigned j = 0; j < mesh.generators[i].size(); ++j)
          {
             HalfEdgeIter h = mesh.generators[i][j];
