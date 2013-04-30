@@ -1,18 +1,115 @@
+=================================================================================
+                                     DGP-DEC
+                                 Siggraph Course 2013
+=================================================================================
+
 DGP-DEC is a framework for writing digital geometry processing (DGP) applications. 
 It provides a simple and practical interface for typical geometry operations based 
 on Discrete Exterior Calculus (DEC). 
-It also provides wrappers to sparse linear system solvers as well as basic visuali-
-zation and interaction modes via GLSL and GLUT.
 
-Mouse control: 
-* left click: rotate
-* right click: show menu
-* shift + left click: pick/unpick vertex
+//////////////
+// BUILDING //
+//////////////
 
-To develop your own application:
-1) Add code for your application in include/Application.h.
-2) Call Application inside Viewer::mProcess() in src/Viewer.cpp.
-3) Customize other classes according to the application.
+0) cd <application_folder>
+1) Comment/uncomment the header flags for your OS
+2) make
+3) ./<application_name> <input>
 
-Fernando de Goes
-Keenan Crane
+////////////////////
+// VIEWER CONTROL //
+////////////////////
+
+Mouse: 
+* left_click: rotate
+* right_click: show menu
+* shift + left_click: pick/unpick vertex
+
+Shortcuts:
+* w: save mesh
+* f: wireframe on/off
+* space: run application
+* Apple/Ctrl+r: reload mesh
+* -/=: decrease/increase time step
+
+//////////////////
+// DEPENDENCIES //
+//////////////////
+
+* GLUT
+* GLSL
+* Tim Davis' SuiteSparseQR sparse QR factorization library:
+ 
+      http://www.cise.ufl.edu/research/sparse/SPQR/
+
+  which in turn depends on SuiteSparse and METIS:
+
+      http://www.cise.ufl.edu/research/sparse/SuiteSparse/
+      http://glaros.dtc.umn.edu/gkhome/views/metis
+
+  as well as some (hopefully optimized!) BLAS/LAPACK implementation.
+  On UNIX-like systems you will probably end up needing the libraries
+
+  bamd.a
+  libcamd.a
+  libcolamd.a
+  libccolamd.a
+  libcholmod.a
+  libspqr.a
+
+  from SuiteSparse and
+
+  libmetis.a
+
+  from METIS.  If you want to avoid compiling all of SuiteSparse, you can simply
+  type "make" in each of the appropriate Lib directories (e.g., AMD/Lib) after
+  setting up UFConfig and copying the resulting library (.a) files to
+  /usr/local/bin or some other appropriate place.  Further instructions on
+  building SuiteSparse and its dependencies can be found on the SuiteSparse home
+  page.
+
+  On Mac OS X, the easiest way to link to an efficient BLAS
+  implementation is by adding the framework
+
+  -framework Accelerate
+
+  On other platforms, Kazushige Goto's GotoBLAS library is a popular choice:
+
+        http://www.tacc.utexas.edu/tacc-projects/gotoblas2/
+
+//////////////////////
+// WRITING NEW APPS //
+//////////////////////
+
+1) Add code for your application in "include/Application.h".
+2) Call Application inside Viewer::mProcess() in "src/Viewer.cpp".
+3) Customize any other class according to your application.
+
+*
+* Copyright 2010 Keenan Crane,Fernando de Goes,Mathieu Desbrun, Peter Schroder.
+* All rights reserved.
+* 
+* Redistribution and use in source and binary forms, with or without modification,
+* are permitted provided that the following conditions are met:
+* 
+* 1. Redistributions of source code must retain the above copyright notice, this
+*    list of conditions and the following disclaimer.
+* 2. Redistributions in binary form must reproduce the above copyright notice,
+*    this list of conditions and the following disclaimer in the documentation
+*    and/or other materials provided with the distribution.
+* 
+* THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+* SHALL THE FREEBSD PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+* LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+* PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+* 
+* The views and conclusions contained in the software and documentation are those
+* of the author and should not be interpreted as representing official policies,
+* either expressed or implied, of any other person or institution.
+*
