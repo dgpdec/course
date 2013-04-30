@@ -2,8 +2,8 @@
 using namespace std;
 
 #include "Viewer.h"
-#include "DenseMatrix.h"
 #include "Direction.h"
+#include "TreeCotree.h"
 using namespace DDG;
 
 int main( int argc, char** argv )
@@ -16,7 +16,10 @@ int main( int argc, char** argv )
 
    Viewer viewer;
    viewer.mesh.read( argv[1] );
-
+   
+   TreeCotree tct;
+   tct.build( viewer.mesh );
+   
    DirectionField field;
    field.generate( viewer.mesh, viewer.angle );
    

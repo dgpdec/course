@@ -91,7 +91,10 @@ namespace DDG
       std::vector<Face>     faces;
       std::vector<Face>     boundaries;
       // storage for mesh elements
-      
+
+      typedef std::vector<HalfEdgeIter> Generator;
+      std::vector<Generator> generators;
+
    protected:
       std::string inputFilename;
       

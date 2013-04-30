@@ -11,6 +11,7 @@ using namespace std;
 #include "Image.h"
 #include "Application.h"
 #include "Direction.h"
+#include "TreeCotree.h"
 
 namespace DDG
 {
@@ -22,9 +23,10 @@ namespace DDG
    Shader Viewer::shader;
    bool Viewer::renderWireframe = true;
    bool Viewer::renderVectorField = true;
+   bool Viewer::renderGenerators = true;
    double Viewer::angle = 0.0;
    double Viewer::increment = 0.1;
-   
+
    void Viewer :: init( void )
    {
       restoreViewerState();
@@ -63,6 +65,7 @@ namespace DDG
       glutAddMenuEntry( "[-] DecreaseAngle", menuDecreaseAngle );
       glutAddMenuEntry( "[=] IncreaseAngle", menuIncreaseAngle );
       glutAddMenuEntry( "[v] VectorField",  menuVectorField );
+      glutAddMenuEntry( "[g] Generators",  menuGenerators );
 
       int mainMenu = glutCreateMenu( Viewer::menu );
       glutSetMenu( mainMenu );
@@ -127,6 +130,9 @@ namespace DDG
          case( menuVectorField ):
             mVectorField();
             break;
+         case( menuGenerators ):
+            mGenerators();
+            break;
          default:
             break;
       }
@@ -162,6 +168,9 @@ namespace DDG
             break;
          case 'v':
             mVectorField();
+            break;
+         case 'g':
+            mGenerators();
             break;
          default:
             break;
@@ -265,8 +274,13 @@ namespace DDG
    void Viewer :: mResetMesh( void )
    {
       mesh.reload();
+
+      TreeCotree tct;
+      tct.build(mesh);
+
       DirectionField field;
       field.generate( mesh, angle );
+      
       updateDisplayList();
    }
    
@@ -290,6 +304,12 @@ namespace DDG
    void Viewer :: mVectorField( void )
    {
       renderVectorField = !renderVectorField;
+      updateDisplayList();
+   }
+
+   void Viewer :: mGenerators( void )
+   {
+      renderGenerators = !renderGenerators;
       updateDisplayList();
    }
 
@@ -429,6 +449,8 @@ namespace DDG
       if( renderWireframe ) drawWireframe();
       
       if( renderVectorField ) drawVectorField();
+      
+      if( renderGenerators ) drawGenerators();
       
       drawIsolatedVertices();
       
@@ -654,6 +676,48 @@ namespace DDG
          mesh.vertices[index].toggleTag();
          updateDisplayList();
       }
+   }
+   
+   void Viewer :: drawGenerators( void )
+   {
+      shader.disable();      
+      glPushAttrib( GL_ALL_ATTRIB_BITS );
+      
+      glEnable( GL_COLOR_MATERIAL );
+      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+      glColor3d(0.0,0.5,0.0);
+      glLineWidth(3.0);
+
+      for(unsigned i = 0; i < mesh.generators.size(); ++i)
+      {
+         for(unsigned j = 0; j < mesh.generators[i].size(); ++j)
+         {
+            HalfEdgeIter h = mesh.generators[i][j];
+            if( h->onBoundary or h->flip->onBoundary ) continue;
+
+            Vector p0 = h->vertex->position;
+            Vector p1 = h->flip->vertex->position;
+            Vector m = 0.5*(p0 + p1);
+
+            Vector f0 = h->face->barycenter();
+            Vector f1 = h->flip->face->barycenter();
+            
+            Vector n0 = h->face->normal();
+            Vector n1 = h->flip->face->normal();
+
+            glBegin(GL_LINES);
+            glNormal3dv( &n0[0] );
+            glVertex3dv( &f0[0] );
+            glVertex3dv( & m[0] );
+
+            glNormal3dv( &n1[0] );
+            glVertex3dv( & m[0] );
+            glVertex3dv( &f1[0] );
+            glEnd();
+         }
+      }
+
+      glPopAttrib();
    }
 }
 

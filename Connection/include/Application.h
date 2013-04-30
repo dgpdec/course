@@ -6,6 +6,7 @@
  * A Simplified Algorithm for Simply-Connected Surfaces 
  * Fernando de Goes and Keenan Crane
  *
+ * TODO: gui to edit singularity indices
  * TODO: pre-factorize matrices
  * TODO: add soft and hard directional constraints
  */

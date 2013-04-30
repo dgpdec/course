@@ -34,6 +34,10 @@ namespace DDG
       // zero-form that controls curvature
       
       double singularity;
+      // singularity index
+      
+      VertexIter parent;
+      // parent in tree-cotree decomposition
       
       Vertex() : index(0), tag(false), potential(0.0), singularity(0.0)
       { }

@@ -57,6 +57,7 @@ namespace DDG
       static void mIncreaseAngle( void );
       static void mDecreaseAngle( void );
       static void mVectorField( void );
+      static void mGenerators( void );
       
       // unique identifiers for menus
       enum
@@ -71,7 +72,8 @@ namespace DDG
          menuScreenshot,
          menuIncreaseAngle,
          menuDecreaseAngle,
-         menuVectorField
+         menuVectorField,
+         menuGenerators
       };
       
       // draw routines
@@ -88,6 +90,7 @@ namespace DDG
       static void drawSelectedVertices( void );
       static void drawIsolatedVertices( void );
       static void pickVertex(int x, int y);
+      static void drawGenerators( void );
       
       static void storeViewerState( void );
       static void restoreViewerState( void );
@@ -97,6 +100,10 @@ namespace DDG
       // draw wireframe
       
       static bool renderVectorField;
+      // draw vector field
+      
+      static bool renderGenerators;
+      // draw generators
       
       static Camera camera;
       // keeps track of view state

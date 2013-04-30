@@ -30,6 +30,9 @@ namespace DDG
       bool tag;
       // auxiliary tag
       
+      FaceIter parent;
+      // parent in tree-cotree decomposition
+
       Face() : index(0), vector(), tag(false) { }
       
       bool isBoundary( void ) const;
