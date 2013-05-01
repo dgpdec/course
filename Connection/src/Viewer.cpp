@@ -687,8 +687,11 @@ namespace DDG
 
       if (index >= 0)
       {
-         mesh.vertices[index].toggleTag();
-         updateDisplayList();
+         if( not mesh.vertices[index].tag )
+         {
+            mesh.vertices[index].toggleTag();
+            updateDisplayList();
+         }
       }
    }
    
