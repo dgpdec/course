@@ -278,7 +278,7 @@ namespace DDG
    
    double Mesh :: generatorHolonomy(const Generator& cycle) const
    {
-      double sum = 0.0;
+      double sum = 2.0*M_PI;
       if( cycle.empty() ) return sum;
       
       for(int k = cycle.size()-1; k >= 0; --k)
@@ -287,10 +287,6 @@ namespace DDG
          sum += parallelTransport(h);
          sum -= connectionOneForm(h);
       }
-      
-      while( sum <  0.0      ) sum += 2.*M_PI;
-      while( sum >= 2.0*M_PI ) sum -= 2.*M_PI;
-
       return sum;
    }
    

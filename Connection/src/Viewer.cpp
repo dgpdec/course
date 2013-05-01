@@ -23,6 +23,7 @@ namespace DDG
    bool Viewer::renderWireframe = true;
    bool Viewer::renderVectorField = true;
    bool Viewer::renderGenerators = true;
+   bool Viewer::renderSelected = true;
    double Viewer::angle = 0.0;
    double Viewer::increment = 0.1;
 
@@ -65,6 +66,7 @@ namespace DDG
       glutAddMenuEntry( "[=] IncreaseAngle", menuIncreaseAngle );
       glutAddMenuEntry( "[v] VectorField",  menuVectorField );
       glutAddMenuEntry( "[g] Generators",  menuGenerators );
+      glutAddMenuEntry( "[s] Selected",  menuSelected );
 
       int mainMenu = glutCreateMenu( Viewer::menu );
       glutSetMenu( mainMenu );
@@ -132,6 +134,9 @@ namespace DDG
          case( menuGenerators ):
             mGenerators();
             break;
+         case( menuSelected ):
+            mSelected();
+            break;
          default:
             break;
       }
@@ -170,6 +175,9 @@ namespace DDG
             break;
          case 'g':
             mGenerators();
+            break;
+         case 's':
+            mSelected();
             break;
          default:
             break;
@@ -267,9 +275,15 @@ namespace DDG
       if( ok )
       {
          DirectionField field;
-         field.generate( mesh, angle );
+         field.generate( mesh, angle, true );
       }
 
+      updateDisplayList();
+   }
+   
+   void Viewer :: mSelected( void )
+   {
+      renderSelected = !renderSelected;
       updateDisplayList();
    }
    
@@ -454,7 +468,7 @@ namespace DDG
       
       drawIsolatedVertices();
       
-      drawSelectedVertices();
+      if( renderSelected ) drawSelectedVertices();
       
       glPopAttrib();
    }

@@ -118,14 +118,16 @@ namespace DDG
             double offset = atan2( cross(u,u0).norm(), dot(u,u0) );
             if( dot( n, cross(u,u0) ) > 0.0 ) offset = -offset;
             
-            //while( offset < 0.0       ) offset += 2.*M_PI;
-            //while( offset >= 2.0*M_PI ) offset -= 2.*M_PI;
-
+            while( offset < 0.0       ) offset += 2.*M_PI;
+            while( offset >= 2.0*M_PI ) offset -= 2.*M_PI;
+            if( std::abs(offset-2.0*M_PI) < 1.0e-6 ) offset = 0.0;
+            
             double sing = 2.*M_PI*v->singularity;
             //double sing = mesh.vertexHolonomy(v);
             
-            //while( sing < 0.0       ) sing += 2.*M_PI;
-            //while( sing >= 2.0*M_PI ) sing -= 2.*M_PI;
+            while( sing < 0.0       ) sing += 2.*M_PI;
+            while( sing >= 2.0*M_PI ) sing -= 2.*M_PI;
+            if( std::abs(sing-2.0*M_PI) < 1.0e-6 ) sing = 0.0;
             
             if( std::abs(offset-sing) > 1.0e-8 )
             {
@@ -154,12 +156,17 @@ namespace DDG
             double offset = atan2( cross(u,u0).norm(), dot(u,u0) );
             if( dot( n, cross(u,u0) ) > 0.0 ) offset = -offset;
 
-            //while( offset <   0.0    ) offset += 2.*M_PI;
-            //while( offset >= 2.0*M_PI ) offset -= 2.*M_PI;
+            while( offset <   0.0     ) offset += 2.*M_PI;
+            while( offset >= 2.0*M_PI ) offset -= 2.*M_PI;
+            if( std::abs(offset-2.0*M_PI) < 1.0e-6 ) offset = 0.0;
 
             double sing = 0.0;
             //double sing = mesh.generatorHolonomy(cycle);
             
+            while( sing < 0.0       ) sing += 2.*M_PI;
+            while( sing >= 2.0*M_PI ) sing -= 2.*M_PI;
+            if( std::abs(sing-2.0*M_PI) < 1.0e-6 ) sing = 0.0;
+
             if( std::abs(offset-sing) > 1.0e-8 )
             {
                std::cout << "Generator" << i << ": "

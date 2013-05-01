@@ -58,6 +58,7 @@ namespace DDG
       static void mDecreaseAngle( void );
       static void mVectorField( void );
       static void mGenerators( void );
+      static void mSelected( void );
       
       // unique identifiers for menus
       enum
@@ -73,7 +74,8 @@ namespace DDG
          menuIncreaseAngle,
          menuDecreaseAngle,
          menuVectorField,
-         menuGenerators
+         menuGenerators,
+         menuSelected
       };
       
       // draw routines
@@ -104,6 +106,9 @@ namespace DDG
       
       static bool renderGenerators;
       // draw generators
+      
+      static bool renderSelected;
+      // draw picked vertices
       
       static Camera camera;
       // keeps track of view state
