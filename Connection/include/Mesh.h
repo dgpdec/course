@@ -56,6 +56,8 @@ namespace DDG
    class Mesh
    {
    public:
+      typedef std::vector<HalfEdgeIter> Generator;
+
       Mesh( void );
       // constructs an empty mesh
       
@@ -85,23 +87,6 @@ namespace DDG
       double meanEdgeLength( void  ) const;
       // returns mean edge lenght
       
-      std::vector<HalfEdge> halfedges;
-      std::vector<Vertex>   vertices;
-      std::vector<Edge>     edges;
-      std::vector<Face>     faces;
-      std::vector<Face>     boundaries;
-      // storage for mesh elements
-
-      SparseFactor<Real> L;
-      // pre-factorization of Laplacian
-
-      typedef std::vector<HalfEdgeIter> Generator;
-      std::vector<Generator> generators;
-      // non-contractible loops
-
-      std::vector<double> harmonicCoefs;
-      // coefficients for linear combination of harmonic bases
-
       bool isBoundaryGenerator(const Generator& cycle) const;
       // returns true if generator is a boundary loop
       
@@ -123,9 +108,27 @@ namespace DDG
       
       double generatorHolonomy(const Generator& cycle) const;
       // returns defect angle by rotating around cycle
-
+      
       void init();
       // pre-compute data
+      
+      std::vector<HalfEdge> halfedges;
+      std::vector<Vertex>   vertices;
+      std::vector<Edge>     edges;
+      std::vector<Face>     faces;
+      std::vector<Face>     boundaries;
+      // storage for mesh elements
+
+      SparseFactor<Real> L;
+      // pre-factorization of Laplacian
+
+      std::vector<Generator> generators;
+      // non-contractible loops
+
+      std::vector<double> harmonicCoefs;
+      // coefficients for linear combination of harmonic bases
+
+      double firstGeneratorIndex;
       
    protected:
       std::string inputFilename;

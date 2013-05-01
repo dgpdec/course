@@ -161,7 +161,10 @@ namespace DDG
                }
             }
 
-            b(row) = - mesh.generatorHolonomy(cycle);
+            if( row == 0 )
+               b(row) = 2.0*M_PI * mesh.firstGeneratorIndex;
+            else
+               b(row) = 0.0;
             row++;
          }
          

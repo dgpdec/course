@@ -67,6 +67,8 @@ namespace DDG
       glutAddMenuEntry( "[v] VectorField",  menuVectorField );
       glutAddMenuEntry( "[g] Generators",  menuGenerators );
       glutAddMenuEntry( "[s] Selected",  menuSelected );
+      glutAddMenuEntry( "[0] IncreaseIndex",  menuIncreaseIndex0 );
+      glutAddMenuEntry( "[)] DecreaseIndex",  menuDecreaseIndex0 );
 
       int mainMenu = glutCreateMenu( Viewer::menu );
       glutSetMenu( mainMenu );
@@ -109,6 +111,12 @@ namespace DDG
             break;
          case( menuDecreaseAngle ):
             mDecreaseAngle();
+            break;
+         case( menuIncreaseIndex0 ):
+            mIncreaseIndex0();
+            break;
+         case( menuDecreaseIndex0 ):
+            mDecreaseIndex0();
             break;
          default:
             break;
@@ -179,6 +187,12 @@ namespace DDG
          case 's':
             mSelected();
             break;
+         case '0':
+            mIncreaseIndex0();
+            break;
+         case ')':
+            mDecreaseIndex0();
+            break;
          default:
             break;
       }
@@ -247,6 +261,18 @@ namespace DDG
       in >> camera.rLast[3];
       in >> windowSize[0];
       in >> windowSize[1];
+   }
+
+   void Viewer :: mIncreaseIndex0( void )
+   {
+      mesh.firstGeneratorIndex++;
+      std::cout << "GeneratorIndex: " << mesh.firstGeneratorIndex << std::endl;
+   }
+
+   void Viewer :: mDecreaseIndex0( void )
+   {
+      mesh.firstGeneratorIndex--;
+      std::cout << "GeneratorIndex: " << mesh.firstGeneratorIndex << std::endl;
    }
 
    void Viewer :: mIncreaseAngle( void )

@@ -13,7 +13,9 @@ using namespace std;
 namespace DDG
 {
    Mesh :: Mesh( void )
-   {}
+   {
+      firstGeneratorIndex = 0;
+   }
    
    Mesh :: Mesh( const Mesh& mesh )
    {

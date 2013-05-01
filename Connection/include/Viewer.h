@@ -59,6 +59,8 @@ namespace DDG
       static void mVectorField( void );
       static void mGenerators( void );
       static void mSelected( void );
+      static void mIncreaseIndex0( void );
+      static void mDecreaseIndex0( void );
       
       // unique identifiers for menus
       enum
@@ -75,7 +77,9 @@ namespace DDG
          menuDecreaseAngle,
          menuVectorField,
          menuGenerators,
-         menuSelected
+         menuSelected,
+         menuIncreaseIndex0,
+         menuDecreaseIndex0
       };
       
       // draw routines
