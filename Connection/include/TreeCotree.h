@@ -25,10 +25,10 @@ namespace DDG
               e++ )
          {
             if( e->he->onBoundary or e->he->flip->onBoundary ) continue;
-            if( inDualSpanningTree( e->he ) ) continue;
             if( inPrimalSpanningTree( e->he ) ) continue;
+            if( inDualSpanningTree( e->he ) ) continue;
 
-            // path to root from left face
+            // path to root from right face
             Mesh::Generator c1;
             FaceIter f = e->he->flip->face;
             while( f != f->parent )
@@ -37,7 +37,7 @@ namespace DDG
                f = f->parent;
             }
 
-            // path to root from right face
+            // path to root from left face
             Mesh::Generator c2;
             f = e->he->face;
             while( f != f->parent )

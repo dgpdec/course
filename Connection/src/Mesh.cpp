@@ -5,6 +5,8 @@
 #include "DiscreteExteriorCalculus.h"
 #include "Direction.h"
 #include "TreeCotree.h"
+#include "HarmonicBases.h"
+#include "Utility.h"
 
 using namespace std;
 
@@ -195,9 +197,103 @@ namespace DDG
       if( cycle.size() == 0 ) return false;
       return ( cycle[0]->vertex->onBoundary() or
                cycle[0]->flip->vertex->onBoundary() );
-
    }
 
+   unsigned Mesh :: numberHarmonicBases() const
+   {
+      unsigned nb = 0;
+      bool skipBoundaryLoop = true;
+      for(unsigned i = 0; i < generators.size(); ++i)
+      {
+         const Generator& cycle = generators[i];
+         if( skipBoundaryLoop and isBoundaryGenerator(cycle) )
+         {
+            skipBoundaryLoop = false;
+            continue;
+         }
+         nb++;
+      }
+      return nb;
+   }
+
+   double Mesh :: connectionOneForm(HalfEdgeIter h) const
+   {
+      // coclosed term
+      double star1 = 0.5 * ( h->cotan() + h->flip->cotan() );
+      double u1 = h->flip->vertex->potential;
+      double u0 = h->vertex->potential;
+      double angle = star1*(u1 - u0);
+      
+      // harmonic term
+      for(unsigned k = 0; k < h->harmonicBases.size(); ++k)
+         angle += this->harmonicCoefs[k] * h->harmonicBases[k];
+      
+      return angle;
+   }
+   
+   double Mesh :: parallelTransport(HalfEdgeIter h) const
+   {
+      if( h->onBoundary or h->flip->onBoundary ) return 0.0;
+      
+      VertexIter v0 = h->vertex;
+      VertexIter v1 = h->next->vertex;
+      Vector e = v1->position - v0->position;
+      
+      Vector aL, bL;
+      faceFrame( h->face->he, aL, bL );
+
+      Vector aR, bR;
+      faceFrame( h->flip->face->he, aR, bR );
+
+      double deltaL = atan2( dot(e,bL), dot(e,aL) );
+      double deltaR = atan2( dot(e,bR), dot(e,aR) );
+      return (deltaL - deltaR);
+   }
+   
+   void Mesh :: faceFrame(HalfEdgeIter h, Vector& a, Vector& b) const
+   {
+      if( h->onBoundary ) return;
+      
+      VertexIter v0 = h->vertex;
+      VertexIter v1 = h->next->vertex;
+      
+      a = ( v1->position - v0->position ).unit();
+      Vector n = h->face->normal();
+      b = cross( n, a );
+   }
+   
+   double Mesh :: vertexHolonomy(VertexIter vertex) const
+   {
+      double sum = 2.0*M_PI;
+      HalfEdgeIter h = vertex->he;
+      do
+      {
+         sum += parallelTransport(h);
+         sum += connectionOneForm(h);
+         h = h->flip->next;
+      }
+      while( h != vertex->he );
+      return sum;
+   }
+   
+   double Mesh :: generatorHolonomy(const Generator& cycle) const
+   {
+      double sum = 0.0;
+      if( cycle.empty() ) return sum;
+      
+      for(int k = cycle.size()-1; k >= 0; --k)
+      {
+         HalfEdgeIter h = cycle[k];
+         sum += parallelTransport(h);
+         sum -= connectionOneForm(h);
+      }
+      
+      while( sum <  0.0      ) sum += 2.*M_PI;
+      while( sum >= 2.0*M_PI ) sum -= 2.*M_PI;
+
+      return sum;
+   }
+   
    void Mesh :: init()
    {
       // Laplacian with Neumann boundary condition
@@ -214,8 +310,23 @@ namespace DDG
       this->L.build(Delta);
       
       // generators
+      int t0 = clock();
       TreeCotree tct;
       tct.build( *this );
+      int t1 = clock();
+      cout << "[generators] time: " << seconds( t0, t1 ) << "s" << "\n";
+      
+      unsigned nb = this->numberHarmonicBases();
+      if( nb == 0 ) return;
+
+      // harmonic coefs
+      this->harmonicCoefs = std::vector<double>( nb, 0.0 );
+      
+      // harmonic bases
+      t0 = clock();
+      HarmonicBases bases;
+      bases.compute( *this );
+      t1 = clock();
+      cout << "[harmonic] time: " << seconds( t0, t1 ) << "s" << "\n";      
    }
-   
 }

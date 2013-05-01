@@ -2,6 +2,7 @@
 using namespace std;
 
 #include "Viewer.h"
+#include "Direction.h"
 using namespace DDG;
 
 int main( int argc, char** argv )
@@ -15,6 +16,10 @@ int main( int argc, char** argv )
    Viewer viewer;
    viewer.mesh.read( argv[1] );
    viewer.mesh.init();
+   
+   DirectionField field;
+   field.generate( viewer.mesh, viewer.angle );
+   
    viewer.init();
 
    return 0;

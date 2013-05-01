@@ -19,7 +19,7 @@ namespace DDG
          HalfEdgeIter he = f->he;
          do
          {
-            propagate( he->flip, f->vector );
+            propagate( mesh, he->flip, f->vector );
             he = he->next;
          }
          while( he != f->he );
@@ -48,25 +48,25 @@ namespace DDG
          f->tag = true;         
       }
       
-      void propagate(HalfEdgeIter h, const Vector& v)
+      void propagate(const Mesh& mesh, HalfEdgeIter h, const Vector& v)
       {
          if( h->onBoundary ) return;
          if( h->face->tag ) return;
          
          FaceIter f = h->face;
-         f->vector = transport(v, h);
+         f->vector = transport(mesh, v, h);
          f->tag = true;
          
          HalfEdgeIter he = f->he;
          do
          {
-            propagate( he->flip, f->vector );
+            propagate( mesh, he->flip, f->vector );
             he = he->next;
          }
          while( he != f->he );
       }
 
-      Vector transport(const Vector& v, HalfEdgeIter h) const
+      Vector transport(const Mesh& mesh, const Vector& v, HalfEdgeIter h) const
       {
          if( h->onBoundary or h->flip->onBoundary ) return v;
          
@@ -80,7 +80,7 @@ namespace DDG
          double dihedral = atan2( nLxnR.norm(), dot( nL, nR ) );
          if( dot( e, nLxnR ) < 0.0 ) dihedral = -dihedral;
                   
-         Vector u = rotate( v, nR, connection(h) );
+         Vector u = rotate( v, nR, mesh.connectionOneForm(h) );         
          return rotate( u, e, dihedral );
       }
 
@@ -91,36 +91,41 @@ namespace DDG
          return ( q.conj() * Quaternion(v) * q ).im();
       }
       
-      double connection(HalfEdgeIter h) const
-      {
-         double star1 = 0.5 * ( h->cotan() + h->flip->cotan() );
-         double u1 = h->flip->vertex->potential;
-         double u0 = h->vertex->potential;
-         double angle = star1*(u1 - u0);
-         
-         // TODO: add harmonic
-         
-         return angle;
-      }
-      
       // debug //
       
-      void debug(const Mesh& mesh) const
+      void debug(Mesh& mesh) const
       {
-         for( VertexCIter v = mesh.vertices.begin();
+         std::cout << "DEBUG-BEGIN" << std::endl;
+         
+         for( VertexIter v = mesh.vertices.begin();
              v != mesh.vertices.end();
              v++)
          {
             if( v->onBoundary() ) continue;
             
+            Vector n = v->he->flip->face->normal();
             Vector u0 = v->he->flip->face->vector;
-            Vector u = circulate(v, u0);
+
+            Vector u = u0;
+            HalfEdgeIter h = v->he;
+            do
+            {
+               u = transport(mesh, u, h);
+               h = h->next->next->flip;
+            }
+            while( h != v->he );
+
             double offset = atan2( cross(u,u0).norm(), dot(u,u0) );
+            if( dot( n, cross(u,u0) ) > 0.0 ) offset = -offset;
+            
+            //while( offset < 0.0       ) offset += 2.*M_PI;
+            //while( offset >= 2.0*M_PI ) offset -= 2.*M_PI;
 
             double sing = 2.*M_PI*v->singularity;
-            while( sing <= 0.0     ) sing += 2.*M_PI;
-            while( sing >= 2.*M_PI ) sing -= 2.*M_PI;
-            if( sing >= M_PI ) sing = 2.*M_PI - sing;
+            //double sing = mesh.vertexHolonomy(v);
+            
+            //while( sing < 0.0       ) sing += 2.*M_PI;
+            //while( sing >= 2.0*M_PI ) sing -= 2.*M_PI;
             
             if( std::abs(offset-sing) > 1.0e-8 )
             {
@@ -131,18 +136,40 @@ namespace DDG
                << std::endl;
             }
          }
-      }
-      
-      Vector circulate(VertexCIter vertex, Vector u) const
-      {
-         HalfEdgeIter h = vertex->he;
-         do
+         
+         for( unsigned i = 0; i < mesh.generators.size(); ++i )
          {
-            u = transport(u, h);
-            h = h->next->next->flip;
+            const Mesh::Generator& cycle = mesh.generators[i];
+            if( cycle.empty() ) continue;
+            
+            Vector n = cycle[0]->face->normal();
+            Vector u0 = cycle[0]->face->vector;
+            
+            Vector u = u0;
+            for( int k = cycle.size()-1; k >= 0; k-- )
+            {
+               u = transport(mesh, u, cycle[k]);
+            }
+
+            double offset = atan2( cross(u,u0).norm(), dot(u,u0) );
+            if( dot( n, cross(u,u0) ) > 0.0 ) offset = -offset;
+
+            //while( offset <   0.0    ) offset += 2.*M_PI;
+            //while( offset >= 2.0*M_PI ) offset -= 2.*M_PI;
+
+            double sing = 0.0;
+            //double sing = mesh.generatorHolonomy(cycle);
+            
+            if( std::abs(offset-sing) > 1.0e-8 )
+            {
+               std::cout << "Generator" << i << ": "
+               << "offset = " << (180./M_PI)*offset << " ; "
+               << "sing = " << (180./M_PI)*sing
+               << std::endl;
+            }
          }
-         while( h != vertex->he );
-         return u;
+         
+         std::cout << "DEBUG-END" << std::endl;
       }
    };
 }

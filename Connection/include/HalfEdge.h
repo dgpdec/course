@@ -40,6 +40,9 @@ namespace DDG
       // texture coordinates associated with the triangle corner at the
       // "tail" of this halfedge
       
+      std::vector<double> harmonicBases;
+      // value of harmonic bases at halfedge
+      
       double cotan( void ) const;
       // returns the cotangent of the angle opposing this edge
       

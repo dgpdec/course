@@ -262,10 +262,13 @@ namespace DDG
    void Viewer :: mProcess( void )
    {
       Application app;
-      app.solveForConneciton(mesh);
+      bool ok = app.solveForConneciton(mesh);
 
-      DirectionField field;
-      field.generate( mesh, angle );
+      if( ok )
+      {
+         DirectionField field;
+         field.generate( mesh, angle );
+      }
 
       updateDisplayList();
    }
@@ -560,7 +563,7 @@ namespace DDG
       glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
       glColor3f( 0., 0.5, 0.5 );
       
-      double h = 0.75*mesh.meanEdgeLength();
+      double h = 0.5*mesh.meanEdgeLength();
       for( VertexCIter v = mesh.vertices.begin();
           v != mesh.vertices.end();
           v ++ )

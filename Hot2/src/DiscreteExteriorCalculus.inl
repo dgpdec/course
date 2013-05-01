@@ -121,6 +121,8 @@ namespace DDG
 
             // set the entry for this edge
             d1( r, c ) = s;
+            
+            he = he->next;
          }
          while( he != f->he );
       }

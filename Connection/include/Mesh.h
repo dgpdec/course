@@ -98,12 +98,34 @@ namespace DDG
       typedef std::vector<HalfEdgeIter> Generator;
       std::vector<Generator> generators;
       // non-contractible loops
-      
+
+      std::vector<double> harmonicCoefs;
+      // coefficients for linear combination of harmonic bases
+
       bool isBoundaryGenerator(const Generator& cycle) const;
       // returns true if generator is a boundary loop
       
-      void init();
+      unsigned numberHarmonicBases() const;
+      // returns 2g + (m-1) where g = genus and m = number of boundary loops
       
+      double connectionOneForm(HalfEdgeIter h) const;
+      // returns rotation angle by crossing h
+      
+      double parallelTransport(HalfEdgeIter h) const;
+      // returns rotation around h->vertex
+      
+      void faceFrame(HalfEdgeIter h, Vector& a, Vector& b) const;
+      // returns unit edge vector parallel to h and
+      // its rotation by \pi/2 around the face's normal
+      
+      double vertexHolonomy(VertexIter vertex) const;
+      // returns defect angle by rotating around vertex
+      
+      double generatorHolonomy(const Generator& cycle) const;
+      // returns defect angle by rotating around cycle
+
+      void init();
+      // pre-compute data
       
    protected:
       std::string inputFilename;
