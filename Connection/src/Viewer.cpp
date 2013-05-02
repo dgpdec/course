@@ -12,21 +12,31 @@ using namespace std;
 #include "Application.h"
 #include "Direction.h"
 
+#define AGE_SIZE 5
+
 namespace DDG
 {
    // declare static member variables
    Mesh Viewer::mesh;
+   
    GLuint Viewer::surfaceDL = 0;
    int Viewer::windowSize[2] = { 512, 512 };
    Camera Viewer::camera;
    Shader Viewer::shader;
+   
    bool Viewer::renderWireframe = true;
    bool Viewer::renderVectorField = true;
    bool Viewer::renderGenerators = true;
    bool Viewer::renderSelected = true;
+   
    double Viewer::angle = 0.0;
    double Viewer::increment = 0.1;
-
+   
+   unsigned Viewer::oldest = 0;
+   unsigned Viewer::counter = 0;
+   std::vector<int> Viewer::indices;
+   std::vector<unsigned> Viewer::age = std::vector<unsigned>(AGE_SIZE, 0);
+   
    void Viewer :: init( void )
    {
       restoreViewerState();
@@ -67,9 +77,19 @@ namespace DDG
       glutAddMenuEntry( "[v] VectorField",  menuVectorField );
       glutAddMenuEntry( "[g] Generators",  menuGenerators );
       glutAddMenuEntry( "[s] Selected",  menuSelected );
-      glutAddMenuEntry( "[0] IncreaseIndex",  menuIncreaseIndex0 );
-      glutAddMenuEntry( "[)] DecreaseIndex",  menuDecreaseIndex0 );
-
+      glutAddMenuEntry( "[0] IncreaseIndex0",  menuIncreaseIndex0 );
+      glutAddMenuEntry( "[)] DecreaseIndex0",  menuDecreaseIndex0 );
+      glutAddMenuEntry( "[1] IncreaseIndex1",  menuIncreaseIndex1 );
+      glutAddMenuEntry( "[!] DecreaseIndex1",  menuDecreaseIndex1 );
+      glutAddMenuEntry( "[2] IncreaseIndex2",  menuIncreaseIndex2 );
+      glutAddMenuEntry( "[@] DecreaseIndex2",  menuDecreaseIndex2 );
+      glutAddMenuEntry( "[3] IncreaseIndex3",  menuIncreaseIndex3 );
+      glutAddMenuEntry( "[#] DecreaseIndex3",  menuDecreaseIndex3 );
+      glutAddMenuEntry( "[4] IncreaseIndex4",  menuIncreaseIndex4 );
+      glutAddMenuEntry( "[$] DecreaseIndex4",  menuDecreaseIndex4 );
+      glutAddMenuEntry( "[5] IncreaseIndex5",  menuIncreaseIndex5 );
+      glutAddMenuEntry( "[%] DecreaseIndex5",  menuDecreaseIndex5 );
+      
       int mainMenu = glutCreateMenu( Viewer::menu );
       glutSetMenu( mainMenu );
       glutAddMenuEntry( "[space] Process Mesh", menuProcess    );
@@ -86,7 +106,7 @@ namespace DDG
       shader.loadVertex( "shaders/vertex.glsl" );
       shader.loadFragment( "shaders/fragment.glsl" );
    }
-
+   
    void Viewer :: menu( int value )
    {
       switch( value )
@@ -113,10 +133,40 @@ namespace DDG
             mDecreaseAngle();
             break;
          case( menuIncreaseIndex0 ):
-            mIncreaseIndex0();
+            mIncreaseIndexG();
             break;
          case( menuDecreaseIndex0 ):
-            mDecreaseIndex0();
+            mDecreaseIndexG();
+            break;
+         case( menuIncreaseIndex1 ):
+            mIncreaseIndexV(1);
+            break;
+         case( menuDecreaseIndex1 ):
+            mDecreaseIndexV(1);
+            break;
+         case( menuIncreaseIndex2 ):
+            mIncreaseIndexV(2);
+            break;
+         case( menuDecreaseIndex2 ):
+            mDecreaseIndexV(2);
+            break;
+         case( menuIncreaseIndex3 ):
+            mIncreaseIndexV(3);
+            break;
+         case( menuDecreaseIndex3 ):
+            mDecreaseIndexV(3);
+            break;
+         case( menuIncreaseIndex4 ):
+            mIncreaseIndexV(4);
+            break;
+         case( menuDecreaseIndex4 ):
+            mDecreaseIndexV(4);
+            break;
+         case( menuIncreaseIndex5 ):
+            mIncreaseIndexV(5);
+            break;
+         case( menuDecreaseIndex5 ):
+            mDecreaseIndexV(5);
             break;
          default:
             break;
@@ -188,10 +238,40 @@ namespace DDG
             mSelected();
             break;
          case '0':
-            mIncreaseIndex0();
+            mIncreaseIndexG();
             break;
          case ')':
-            mDecreaseIndex0();
+            mDecreaseIndexG();
+            break;
+         case '1':
+            mIncreaseIndexV(0);
+            break;
+         case '!':
+            mDecreaseIndexV(0);
+            break;
+         case '2':
+            mIncreaseIndexV(1);
+            break;
+         case '@':
+            mDecreaseIndexV(1);
+            break;
+         case '3':
+            mIncreaseIndexV(2);
+            break;
+         case '#':
+            mDecreaseIndexV(2);
+            break;
+         case '4':
+            mIncreaseIndexV(3);
+            break;
+         case '$':
+            mDecreaseIndexV(3);
+            break;
+         case '5':
+            mIncreaseIndexV(4);
+            break;
+         case '%':
+            mDecreaseIndexV(4);
             break;
          default:
             break;
@@ -215,7 +295,7 @@ namespace DDG
             break;
       }
    }
-
+   
    void Viewer :: mouse( int button, int state, int x, int y )
    {
       if( ( glutGetModifiers() and GLUT_ACTIVE_SHIFT) and state == GLUT_UP )
@@ -262,19 +342,78 @@ namespace DDG
       in >> windowSize[0];
       in >> windowSize[1];
    }
-
-   void Viewer :: mIncreaseIndex0( void )
+   
+   void Viewer :: mIncreaseIndexG( void )
    {
       mesh.firstGeneratorIndex++;
-      std::cout << "GeneratorIndex: " << mesh.firstGeneratorIndex << std::endl;
+      std::cout << "SingG0: " << mesh.firstGeneratorIndex << std::endl;
    }
-
-   void Viewer :: mDecreaseIndex0( void )
+   
+   void Viewer :: mDecreaseIndexG( void )
    {
       mesh.firstGeneratorIndex--;
-      std::cout << "GeneratorIndex: " << mesh.firstGeneratorIndex << std::endl;
+      std::cout << "SingG0: " << mesh.firstGeneratorIndex << std::endl;
    }
-
+   
+   void Viewer :: mIncreaseIndexV( int i )
+   {
+      if( int(indices.size()) < i) return;
+      updateIndex(i, true);
+   }
+   
+   void Viewer :: mDecreaseIndexV( int i )
+   {
+      if( int(indices.size()) < i) return;
+      updateIndex(i, false);
+   }
+   
+   void Viewer :: updateIndex( int i, bool increment )
+   {
+      if( increment )
+         mesh.vertices[ indices[i] ].singularity++;
+      else
+         mesh.vertices[ indices[i] ].singularity--;
+      
+      std::cout << "SingV" << indices[i] << ": "
+      << mesh.vertices[ indices[i] ].singularity  << std::endl;
+      
+      counter++;
+      age[i] = counter;
+      
+      computeOldest();
+      normalizeSingularities();
+   }
+   
+   void Viewer :: computeOldest( void )
+   {
+      if( indices.empty() ) return;
+      
+      unsigned oldest_age = counter + 1;
+      for( unsigned i = 0; i < indices.size(); ++i)
+      {
+         if( age[i] < oldest_age )
+         {
+            oldest_age = age[i];
+            oldest = i;
+         }
+      }
+   }
+   
+   void Viewer :: normalizeSingularities( void )
+   {
+      if( indices.empty() ) return;
+      
+      double sing = 0;
+      for( unsigned i = 0; i < indices.size(); ++i)
+         sing += mesh.vertices[ indices[i] ].singularity;
+      
+      double chi = mesh.getEulerCharacteristicNumber();
+      mesh.vertices[ indices[oldest] ].singularity += (chi - sing);
+      
+      std::cout << "OldestV" << indices[oldest] << ": "
+      << mesh.vertices[ indices[oldest] ].singularity << std::endl;
+   }
+   
    void Viewer :: mIncreaseAngle( void )
    {
       angle += increment;
@@ -283,7 +422,7 @@ namespace DDG
       updateDisplayList();
       std::cout << "Angle = " << angle << std::endl;
    }
-
+   
    void Viewer :: mDecreaseAngle( void )
    {
       angle -= increment;
@@ -292,18 +431,18 @@ namespace DDG
       updateDisplayList();
       std::cout << "Angle = " << angle << std::endl;
    }
-
+   
    void Viewer :: mProcess( void )
    {
       Application app;
       bool ok = app.solveForConneciton(mesh);
-
+      
       if( ok )
       {
          DirectionField field;
          field.generate( mesh, angle, true );
       }
-
+      
       updateDisplayList();
    }
    
@@ -317,9 +456,14 @@ namespace DDG
    {
       mesh.reload();
       mesh.init();
-
+      
       DirectionField field;
       field.generate( mesh, angle );
+      
+      oldest = 0;
+      counter = 0;
+      indices.clear();
+      age = std::vector<unsigned>(AGE_SIZE,0);
       
       updateDisplayList();
    }
@@ -346,13 +490,13 @@ namespace DDG
       renderVectorField = !renderVectorField;
       updateDisplayList();
    }
-
+   
    void Viewer :: mGenerators( void )
    {
       renderGenerators = !renderGenerators;
       updateDisplayList();
    }
-
+   
    void Viewer :: mZoomIn( void )
    {
       camera.zoomIn();
@@ -383,12 +527,12 @@ namespace DDG
       
       index++;
    }
-      
+   
    void Viewer :: display( void )
    {
       glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
       shader.enable();
-
+      
       glMatrixMode( GL_PROJECTION );
       glLoadIdentity();
       GLint viewport[4];
@@ -404,10 +548,10 @@ namespace DDG
       
       Quaternion    eye = Vector( 0., 0., -2.5*camera.zoom );
       Quaternion center = Vector( 0., 0., 0. );
-      Quaternion     up = Vector( 0., 1., 0. );      
+      Quaternion     up = Vector( 0., 1., 0. );
       gluLookAt(   eye[1],    eye[2],    eye[3],
                 center[1], center[2], center[3],
-                    up[1],     up[2],     up[3] );
+                up[1],     up[2],     up[3] );
       
       
       Quaternion r = camera.currentRotation();
@@ -479,7 +623,7 @@ namespace DDG
    void Viewer :: drawScene( void )
    {
       glPushAttrib( GL_ALL_ATTRIB_BITS );
-
+      
       glEnable( GL_POLYGON_OFFSET_FILL );
       glPolygonOffset( 1., 1. );
       glColor3d( 1., .5, .25 );
@@ -620,7 +764,7 @@ namespace DDG
       
       glPopAttrib();
    }
-
+   
    void Viewer :: drawVectorField( void )
    {
       shader.disable();
@@ -640,13 +784,13 @@ namespace DDG
          Vector a = f->barycenter();
          Vector b = a + h*f->vector;
          Vector n = f->normal();
-
+         
          Vector v = b - a;
          Vector v90 = cross(n, v);
          Vector p0 = b;
          Vector p1 = p0 - 0.2 * v - 0.1 * v90;
          Vector p2 = p0 - 0.2 * v + 0.1 * v90;
-
+         
          glBegin( GL_LINES );
          glVertex3dv( &a[0] );
          glVertex3dv( &b[0] );
@@ -661,7 +805,7 @@ namespace DDG
       
       glPopAttrib();
    }
-
+   
    void Viewer :: pickVertex(int x, int y)
    {
       int width  = glutGet(GLUT_WINDOW_WIDTH );
@@ -710,60 +854,67 @@ namespace DDG
          }
       }
       delete[] buf;
-
+      
       if (index >= 0)
       {
-         if( not mesh.vertices[index].tag )
+         if( mesh.vertices[index].tag ) return;
+         
+         if( indices.size() >= age.size() )
          {
-            mesh.vertices[index].toggleTag();
-            updateDisplayList();
+            std::cout << "Reached max number of picked vertices" << std::endl;
+            return;
          }
+         
+         mesh.vertices[index].toggleTag();
+         indices.push_back(index);
+         mIncreaseIndexV( indices.size()-1 );
+         updateDisplayList();
       }
    }
    
    void Viewer :: drawGenerators( void )
    {
-      shader.disable();      
+      shader.disable();
       glPushAttrib( GL_ALL_ATTRIB_BITS );
       
       glEnable( GL_COLOR_MATERIAL );
       glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
       glLineWidth(3.0);
-
+      
       for(unsigned i = 0; i < mesh.generators.size(); ++i)
       {
          if( mesh.isBoundaryGenerator( mesh.generators[i] ) )
             glColor3d(0.0,0.0,0.5);
          else
             glColor3d(0.0,0.5,0.0);
-
+         
          for(unsigned j = 0; j < mesh.generators[i].size(); ++j)
          {
             HalfEdgeIter h = mesh.generators[i][j];
             if( h->onBoundary or h->flip->onBoundary ) continue;
-
+            
             Vector p0 = h->vertex->position;
             Vector p1 = h->flip->vertex->position;
             Vector m = 0.5*(p0 + p1);
-
+            
             Vector f0 = h->face->barycenter();
             Vector f1 = h->flip->face->barycenter();
             
             Vector n0 = h->face->normal();
             Vector n1 = h->flip->face->normal();
-
+            
             glBegin(GL_LINES);
             glNormal3dv( &n0[0] );
             glVertex3dv( &f0[0] );
             glVertex3dv( & m[0] );
-
+            
             glNormal3dv( &n1[0] );
             glVertex3dv( & m[0] );
             glVertex3dv( &f1[0] );
             glEnd();
          }
       }
-
+      
       glPopAttrib();
    }
 }

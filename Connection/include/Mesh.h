@@ -87,6 +87,9 @@ namespace DDG
       double meanEdgeLength( void  ) const;
       // returns mean edge lenght
       
+      int getEulerCharacteristicNumber( void ) const;
+      // returns Euler Characteristic Number
+      
       bool isBoundaryGenerator(const Generator& cycle) const;
       // returns true if generator is a boundary loop
       

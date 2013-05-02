@@ -29,12 +29,17 @@ namespace DDG
       static double angle;
       static double increment;
       // initial angle and increment
-
+      
+      static unsigned oldest;
+      static unsigned counter;
+      static std::vector<int> indices;
+      static std::vector<unsigned> age;
+      
    protected:
       // init
       static void initGLUT( void );
       static void initGLSL( void );
-
+      
       // GLUT callbacks
       static void display( void );
       static void idle( void );
@@ -59,8 +64,15 @@ namespace DDG
       static void mVectorField( void );
       static void mGenerators( void );
       static void mSelected( void );
-      static void mIncreaseIndex0( void );
-      static void mDecreaseIndex0( void );
+      
+      static void mIncreaseIndexG( void );
+      static void mDecreaseIndexG( void );
+      static void mIncreaseIndexV( int i );
+      static void mDecreaseIndexV( int i );
+      
+      static void computeOldest( void );
+      static void normalizeSingularities( void );
+      static void updateIndex( int i, bool increment );
       
       // unique identifiers for menus
       enum
@@ -79,7 +91,17 @@ namespace DDG
          menuGenerators,
          menuSelected,
          menuIncreaseIndex0,
-         menuDecreaseIndex0
+         menuDecreaseIndex0,
+         menuIncreaseIndex1,
+         menuDecreaseIndex1,
+         menuIncreaseIndex2,
+         menuDecreaseIndex2,
+         menuIncreaseIndex3,
+         menuDecreaseIndex3,
+         menuIncreaseIndex4,
+         menuDecreaseIndex4,
+         menuIncreaseIndex5,
+         menuDecreaseIndex5
       };
       
       // draw routines

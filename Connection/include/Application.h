@@ -6,7 +6,6 @@
  * A Simplified Algorithm for Simply-Connected Surfaces 
  * Fernando de Goes and Keenan Crane
  *
- * TODO: gui to edit singularity indices
  * TODO: add soft and hard directional constraints
  */
 
@@ -28,9 +27,6 @@ namespace DDG
    public:
       bool solveForConneciton(Mesh& mesh)
       {
-         // For simplicity, tagged vertices have equal index
-         setConstantIndex(mesh);
-         
          int t0 = clock();
          bool ok = solveForTrivialHolonomy(mesh);
          int t1 = clock();
@@ -46,38 +42,7 @@ namespace DDG
          return true;
       }
       
-   protected:
-      void setConstantIndex(Mesh& mesh)
-      {
-         unsigned nbSingularities = 0;
-         double insideCurvature = 0.0;
-         for( VertexCIter v = mesh.vertices.begin();
-             v != mesh.vertices.end();
-             v++)
-         {
-            if( not v->onBoundary() )
-            {
-               insideCurvature += ( 2.*M_PI - v->theta() );
-               if( v->tag ) nbSingularities++;
-            }
-         }
-         
-         double index = 0.0;
-         if( nbSingularities > 0 )
-         {
-            index = insideCurvature / ( 2.*M_PI*nbSingularities );
-         }
-         
-         for( VertexIter v = mesh.vertices.begin();
-             v != mesh.vertices.end();
-             v++)
-         {
-            double singularity = 0.0;
-            if( v->tag ) singularity = index;
-            v->singularity = singularity;
-         }
-      }
-      
+   protected:      
       bool solveForTrivialHolonomy(Mesh& mesh)
       {
          DenseMatrix<Real> b;
@@ -103,7 +68,7 @@ namespace DDG
       
       bool buildAngleDefect(Mesh& mesh, DenseMatrix<Real>& b) const
       {
-         // Neumann boundary condition => prescibing geodesic curvature
+         // Neumann boundary condition => prescribing geodesic curvature
          // For now, keeping original geodesic curvature
          double sum = 0.0;
          b = DenseMatrix<Real>( mesh.vertices.size() );

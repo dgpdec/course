@@ -194,6 +194,11 @@ namespace DDG
       return sum / edges.size();
    }
    
+   int Mesh :: getEulerCharacteristicNumber( void ) const
+   {
+      return ( this->vertices.size() - this->edges.size() + this->faces.size() );
+   }
+
    bool Mesh :: isBoundaryGenerator(const Generator& cycle) const
    {
       if( cycle.size() == 0 ) return false;
