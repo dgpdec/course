@@ -223,19 +223,16 @@ namespace DDG
       return nb;
    }
 
-   double Mesh :: connectionOneForm(HalfEdgeIter h) const
+   void Mesh :: faceFrame(HalfEdgeIter h, Vector& a, Vector& b) const
    {
-      // coclosed term
-      double star1 = 0.5 * ( h->cotan() + h->flip->cotan() );
-      double u1 = h->flip->vertex->potential;
-      double u0 = h->vertex->potential;
-      double angle = star1*(u1 - u0);
+      if( h->onBoundary ) return;
       
-      // harmonic term
-      for(unsigned k = 0; k < h->harmonicBases.size(); ++k)
-         angle += this->harmonicCoefs[k] * h->harmonicBases[k];
+      VertexIter v0 = h->vertex;
+      VertexIter v1 = h->next->vertex;
       
-      return angle;
+      a = ( v1->position - v0->position ).unit();
+      Vector n = h->face->normal();
+      b = cross( n, a );
    }
    
    double Mesh :: parallelTransport(HalfEdgeIter h) const
@@ -257,16 +254,21 @@ namespace DDG
       return (deltaL - deltaR);
    }
    
-   void Mesh :: faceFrame(HalfEdgeIter h, Vector& a, Vector& b) const
+   double Mesh :: connectionOneForm(HalfEdgeIter h) const
    {
-      if( h->onBoundary ) return;
+      double angle = 0.0;
       
-      VertexIter v0 = h->vertex;
-      VertexIter v1 = h->next->vertex;
+      // coclosed term
+      double star1 = 0.5 * ( h->cotan() + h->flip->cotan() );
+      double u0 = h->flip->vertex->potential;
+      double u1 = h->vertex->potential;
+      angle += star1*(u1 - u0);
       
-      a = ( v1->position - v0->position ).unit();
-      Vector n = h->face->normal();
-      b = cross( n, a );
+      // harmonic term
+      for(unsigned k = 0; k < h->harmonicBases.size(); ++k)
+         angle += this->harmonicCoefs[k] * h->harmonicBases[k];
+      
+      return angle;
    }
    
    double Mesh :: vertexHolonomy(VertexIter vertex) const
@@ -285,15 +287,18 @@ namespace DDG
    
    double Mesh :: generatorHolonomy(const Generator& cycle) const
    {
-      double sum = 2.0*M_PI;
+      double sum = 0.0;
       if( cycle.empty() ) return sum;
       
-      for(int k = cycle.size()-1; k >= 0; --k)
+      for(unsigned k = 0; k < cycle.size(); ++k)
       {
          HalfEdgeIter h = cycle[k];
          sum += parallelTransport(h);
-         sum -= connectionOneForm(h);
+         sum += connectionOneForm(h);
       }
+      
+      while( sum <  0.0      ) sum += 2.0*M_PI;
+      while( sum >= 2.0*M_PI ) sum -= 2.0*M_PI;
       return sum;
    }
    

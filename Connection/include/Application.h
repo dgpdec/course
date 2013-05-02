@@ -27,13 +27,18 @@ namespace DDG
    public:
       bool solveForConneciton(Mesh& mesh)
       {
+         bool ok = checkGaussBonnet(mesh);
+         if( not ok )
+         {
+            std::cout << "Gauss-Bonnet thm does not hold" << std::endl;
+            return false;
+         }
+         
          int t0 = clock();
-         bool ok = solveForTrivialHolonomy(mesh);
+         solveForTrivialHolonomy(mesh);
          int t1 = clock();
          cout << "[trivial] time: " << seconds( t0, t1 ) << "s" << "\n";
 
-         if( not ok ) return false;
-         
          t0 = clock();
          solveForNonTrivialHolonomy(mesh);
          t1 = clock();
@@ -42,37 +47,31 @@ namespace DDG
          return true;
       }
       
-   protected:      
-      bool solveForTrivialHolonomy(Mesh& mesh)
+   protected:
+      bool checkGaussBonnet(const Mesh& mesh) const
       {
-         DenseMatrix<Real> b;
-         bool ok = buildAngleDefect( mesh, b );
-         
-         if( not ok )
+         // vertex singularity
+         int k = 0;
+         for(VertexCIter v = mesh.vertices.begin();
+             v != mesh.vertices.end();
+             v++)
          {
-            std::cout << "Gauss-Bonnet thm does not hold" << std::endl;
-            return false;
+            k += v->singularity;
          }
          
-         if( b.norm() < 1.0e-8 )
-         {
-            std::cout << "no curvature change" << std::endl;
-            return false;
-         }
+         // generator singularity
+         // TODO: include singularity for all generators
+         k += mesh.firstGeneratorIndex;
          
-         DenseMatrix<Real> u;
-         backsolvePositiveDefinite( mesh.L, u, b );
-         assignPotential( u, mesh );
-         return true;
+         return ( mesh.getEulerCharacteristicNumber() == k );
       }
       
-      bool buildAngleDefect(Mesh& mesh, DenseMatrix<Real>& b) const
+      void solveForTrivialHolonomy(Mesh& mesh)
       {
          // Neumann boundary condition => prescribing geodesic curvature
          // For now, keeping original geodesic curvature
-         double sum = 0.0;
-         b = DenseMatrix<Real>( mesh.vertices.size() );
-         for( VertexIter v = mesh.vertices.begin();
+         DenseMatrix<Real> b( mesh.vertices.size() );
+         for(VertexIter v = mesh.vertices.begin();
              v != mesh.vertices.end();
              v++)
          {
@@ -83,25 +82,24 @@ namespace DDG
                value += 2. * M_PI * v->singularity;
             }
             b( v->index ) = value;
-            sum += value;
          }
-         return ( std::abs(sum) < 1.0e-8 );
-      }
-      
-      void assignPotential(const DenseMatrix<Real>& u, Mesh& mesh)
-      {
-         for( VertexIter v = mesh.vertices.begin();
+         
+         DenseMatrix<Real> u( mesh.vertices.size() );
+         if( b.norm() > 1.0e-8 ) backsolvePositiveDefinite( mesh.L, u, b );
+
+         for(VertexIter v = mesh.vertices.begin();
              v != mesh.vertices.end();
              v++)
          {
             v->potential = u( v->index );
          }
       }
-      
+
       void solveForNonTrivialHolonomy(Mesh& mesh)
       {
          unsigned nb = mesh.numberHarmonicBases();
          if( nb == 0 ) return;
+         mesh.harmonicCoefs = std::vector<double>(nb, 0.0);
 
          DenseMatrix<Real>  b(nb);
          SparseMatrix<Real> H(nb,nb);
@@ -126,21 +124,21 @@ namespace DDG
                }
             }
 
+            double value = 0.0;
             if( row == 0 )
-               b(row) = 2.0*M_PI * mesh.firstGeneratorIndex;
-            else
-               b(row) = 0.0;
+            {
+               value -= mesh.generatorHolonomy( cycle );
+               value += 2.0 * M_PI * mesh.firstGeneratorIndex ;
+            }
+            b(row) = value;
             row++;
          }
          
-         DenseMatrix<Real> x;
-         solve(H, x, b);
+         DenseMatrix<Real> x(nb);
+         if( b.norm() > 1.0e-8 ) solve(H, x, b);
 
-         mesh.harmonicCoefs = std::vector<double>( nb , 0.0 );
          for(unsigned i = 0; i < nb; ++i)
-         {
             mesh.harmonicCoefs[i] = x(i);
-         }
       }
    };
 }

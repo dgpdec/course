@@ -80,7 +80,7 @@ namespace DDG
          double dihedral = atan2( nLxnR.norm(), dot( nL, nR ) );
          if( dot( e, nLxnR ) < 0.0 ) dihedral = -dihedral;
                   
-         Vector u = rotate( v, nR, mesh.connectionOneForm(h) );         
+         Vector u = rotate( v, nR, -mesh.connectionOneForm(h) );
          return rotate( u, e, dihedral );
       }
 
@@ -122,8 +122,7 @@ namespace DDG
             while( offset >= 2.0*M_PI ) offset -= 2.*M_PI;
             if( std::abs(offset-2.0*M_PI) < 1.0e-6 ) offset = 0.0;
             
-            double sing = 2.*M_PI*v->singularity;
-            //double sing = mesh.vertexHolonomy(v);
+            double sing = mesh.vertexHolonomy(v);
             
             while( sing < 0.0       ) sing += 2.*M_PI;
             while( sing >= 2.0*M_PI ) sing -= 2.*M_PI;
@@ -160,8 +159,7 @@ namespace DDG
             while( offset >= 2.0*M_PI ) offset -= 2.*M_PI;
             if( std::abs(offset-2.0*M_PI) < 1.0e-6 ) offset = 0.0;
 
-            double sing = 0.0;
-            //double sing = mesh.generatorHolonomy(cycle);
+            double sing = mesh.generatorHolonomy(cycle);
             
             while( sing < 0.0       ) sing += 2.*M_PI;
             while( sing >= 2.0*M_PI ) sing -= 2.*M_PI;

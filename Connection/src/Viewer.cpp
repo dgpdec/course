@@ -345,12 +345,14 @@ namespace DDG
    
    void Viewer :: mIncreaseIndexG( void )
    {
+      if( mesh.generators.empty() ) return;
       mesh.firstGeneratorIndex++;
       std::cout << "SingG0: " << mesh.firstGeneratorIndex << std::endl;
    }
    
    void Viewer :: mDecreaseIndexG( void )
    {
+      if( mesh.generators.empty() ) return;
       mesh.firstGeneratorIndex--;
       std::cout << "SingG0: " << mesh.firstGeneratorIndex << std::endl;
    }
@@ -403,7 +405,7 @@ namespace DDG
    {
       if( indices.empty() ) return;
       
-      double sing = 0;
+      double sing = mesh.firstGeneratorIndex;
       for( unsigned i = 0; i < indices.size(); ++i)
          sing += mesh.vertices[ indices[i] ].singularity;
       
@@ -440,7 +442,7 @@ namespace DDG
       if( ok )
       {
          DirectionField field;
-         field.generate( mesh, angle, true );
+         field.generate( mesh, angle );
       }
       
       updateDisplayList();
