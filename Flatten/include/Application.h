@@ -25,30 +25,30 @@ namespace DDG
             std::cout << "Mesh has no boundary" << std::endl;
             return;
          }
-         
          double initial_area = mesh.area();
          
+         // Energy matrix
          SparseMatrix<Complex> Lc;
-         buildStiffnessMatrix(mesh, Lc);
+         buildEnergy(mesh, Lc);
          
+         // make Lc positive-definite
          SparseMatrix<Complex> star0;
          HodgeStar0Form<Complex>::build( mesh, star0 );
-
-         // force Lc to be positive-definite
          Lc += Complex(1.0e-8)*star0;
          
+         // compute parameterization
          DenseMatrix<Complex> x(Lc.nRows());
          x.randomize();
-         
          smallestEigPositiveDefinite(Lc, star0, x);
          assignSolution(x, mesh);
          
+         // rescale mesh
          double scale = std::sqrt( initial_area / mesh.area() );
          normalizeMesh(scale, mesh);
       }
       
    protected:
-      void buildStiffnessMatrix(const Mesh& mesh, SparseMatrix<Complex>& A) const
+      void buildEnergy(const Mesh& mesh, SparseMatrix<Complex>& A) const
       {
          // Laplacian
          SparseMatrix<Complex> d0, star1;
