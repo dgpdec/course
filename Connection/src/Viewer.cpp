@@ -785,6 +785,7 @@ namespace DDG
          if( f->isBoundary() ) continue;
          Vector a = f->barycenter();
          Vector b = a + h*f->vector;
+         Vector c = a - h*f->vector;
          Vector n = f->normal();
          
          Vector v = b - a;
@@ -794,7 +795,7 @@ namespace DDG
          Vector p2 = p0 - 0.2 * v + 0.1 * v90;
          
          glBegin( GL_LINES );
-         glVertex3dv( &a[0] );
+         glVertex3dv( &c[0] );
          glVertex3dv( &b[0] );
          glEnd();
          
