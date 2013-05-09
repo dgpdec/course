@@ -124,10 +124,9 @@ namespace DDG
                }
             }
 
-            double value = 0.0;
+            double value = - mesh.generatorHolonomy( cycle );
             if( row == 0 )
             {
-               value -= mesh.generatorHolonomy( cycle );
                value += 2.0 * M_PI * mesh.firstGeneratorIndex ;
             }
             b(row) = value;
