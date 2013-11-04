@@ -26,20 +26,25 @@ namespace DDG
             return;
          }
          double initial_area = mesh.area();
-         
+         unsigned nb_verts = mesh.vertices.size();
+
          // Energy matrix
-         SparseMatrix<Complex> Lc;
+         SparseMatrix<Complex> Lc(nb_verts, nb_verts);
          buildEnergy(mesh, Lc);
          
          // make Lc positive-definite
-         SparseMatrix<Complex> star0;
+         SparseMatrix<Complex> star0(nb_verts, nb_verts);
          HodgeStar0Form<Complex>::build( mesh, star0 );
          Lc += Complex(1.0e-8)*star0;
          
+         // computer boundary matrix
+         SparseMatrix<Complex> B(nb_verts, nb_verts);
+         buildBoundaryMatrix(mesh, B);
+
          // compute parameterization
          DenseMatrix<Complex> x(Lc.nRows());
          x.randomize();
-         smallestEigPositiveDefinite(Lc, star0, x);
+         smallestEigPositiveDefinite(Lc, B, x);
          assignSolution(x, mesh);
          
          // rescale mesh
@@ -48,6 +53,24 @@ namespace DDG
       }
       
    protected:
+      void buildBoundaryMatrix(const Mesh& mesh, 
+                               SparseMatrix<Complex>& B) const
+      {
+         for( FaceCIter f = mesh.boundaries.begin();
+             f != mesh.boundaries.end();
+             f ++ )
+         {
+            HalfEdgeIter he = f->he;
+            do
+            {
+               int i = he->vertex->index;
+               B(i,i) = 1.0;               
+               he = he->next;
+            }
+            while( he != f->he );
+         }
+      }
+
       void buildEnergy(const Mesh& mesh, SparseMatrix<Complex>& A) const
       {
          // Laplacian
