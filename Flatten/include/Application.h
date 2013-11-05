@@ -37,14 +37,16 @@ namespace DDG
          HodgeStar0Form<Complex>::build( mesh, star0 );
          Lc += Complex(1.0e-8)*star0;
          
-         // computer boundary matrix
-         SparseMatrix<Complex> B(nb_verts, nb_verts);
-         buildBoundaryMatrix(mesh, B);
+         // optional: alternative norm
+         // SparseMatrix<Complex> B(nb_verts, nb_verts);
+         // buildBoundaryMatrix(mesh, B);
+         //
 
          // compute parameterization
          DenseMatrix<Complex> x(Lc.nRows());
          x.randomize();
-         smallestEigPositiveDefinite(Lc, B, x);
+         smallestEigPositiveDefinite(Lc, x);
+         // smallestEigPositiveDefinite(Lc, B, x);
          assignSolution(x, mesh);
          
          // rescale mesh
