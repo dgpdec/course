@@ -47,6 +47,7 @@ namespace DDG
       static void mWriteMesh( void );
       static void mExit( void );
       static void mWireframe( void );
+      static void mRender3D( void );
       static void mZoomIn( void );
       static void mZoomOut( void );
       static void mScreenshot( void );
@@ -59,6 +60,7 @@ namespace DDG
          menuWriteMesh,
          menuExit,
          menuWireframe,
+         menuRender3D,
          menuZoomIn,
          menuZoomOut,
          menuScreenshot
@@ -82,6 +84,9 @@ namespace DDG
       static void restoreViewerState( void );
       static int windowSize[2];
       
+      static bool render3D;
+      // draw 3D or 2D
+
       static bool renderWireframe;
       // draw wireframe
       

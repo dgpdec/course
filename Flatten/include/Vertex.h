@@ -21,6 +21,9 @@ namespace DDG
       HalfEdgeIter he;
       // points to the "outgoing" halfedge
       
+      Vector texture;
+      // location of vertex in Euclidian 2-space
+
       Vector position;
       // location of vertex in Euclidean 3-space
       

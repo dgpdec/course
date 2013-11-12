@@ -84,9 +84,9 @@ namespace DDG
          {
             int i = v->index;
             const Complex& z = x(i,0);
-            v->position.x = z.re;
-            v->position.y = z.im;
-            v->position.z = 0.0;
+            v->texture.x = z.re;
+            v->texture.y = z.im;
+            v->texture.z = 0.0;
          }
       }
       
@@ -97,7 +97,7 @@ namespace DDG
              v != mesh.vertices.end();
              v ++ )
          {
-            avg += v->position;
+            avg += v->texture;
          }
          avg /= mesh.vertices.size();
          
@@ -105,7 +105,7 @@ namespace DDG
              v != mesh.vertices.end();
              v ++ )
          {
-            v->position = scale*(v->position - avg);
+            v->texture = scale*(v->texture - avg);
          }
       }
    };

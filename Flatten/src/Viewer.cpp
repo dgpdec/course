@@ -20,6 +20,7 @@ namespace DDG
    Camera Viewer::camera;
    Shader Viewer::shader;
    bool Viewer::renderWireframe = false;
+   bool Viewer::render3D = false;
    
    void Viewer :: init( void )
    {
@@ -54,6 +55,7 @@ namespace DDG
       int viewMenu = glutCreateMenu( Viewer::view );
       glutSetMenu( viewMenu );
       glutAddMenuEntry( "[f] Wireframe",  menuWireframe    );
+      glutAddMenuEntry( "[s] Switch 2D/3D",  menuRender3D  );
       glutAddMenuEntry( "[↑] Zoom In",    menuZoomIn       );
       glutAddMenuEntry( "[↓] Zoom Out",   menuZoomOut      );
       
@@ -102,6 +104,9 @@ namespace DDG
    {
       switch( value )
       {
+         case( menuRender3D ):
+            mRender3D();
+            break;
          case( menuWireframe ):
             mWireframe();
             break;
@@ -120,6 +125,9 @@ namespace DDG
    {
       switch( c )
       {
+         case 's':
+            mRender3D();
+            break;
          case 'f':
             mWireframe();
             break;
@@ -235,6 +243,12 @@ namespace DDG
    void Viewer :: mWireframe( void )
    {
       renderWireframe = !renderWireframe;
+      updateDisplayList();
+   }
+
+   void Viewer :: mRender3D( void )
+   {
+      render3D = !render3D;
       updateDisplayList();
    }
    
@@ -389,7 +403,7 @@ namespace DDG
          if( f->isBoundary() ) continue;
          
          glBegin( GL_POLYGON );
-         if( renderWireframe )
+         if( render3D and renderWireframe )
          {
             Vector N = f->normal();
             glNormal3dv( &N[0] );
@@ -398,13 +412,25 @@ namespace DDG
          HalfEdgeCIter he = f->he;
          do
          {
-            if( not renderWireframe )
+            if( render3D and (not renderWireframe) )
             {
                Vector N = he->vertex->normal();
                glNormal3dv( &N[0] );
             }
+
+            if( not render3D )
+            {
+               glNormal3d(0.,0.,1.);
+            }
             
-            glVertex3dv( &he->vertex->position[0] );
+            if( render3D )
+            {
+               glVertex3dv( &he->vertex->position[0] );               
+            }
+            else
+            {
+               glVertex3dv( &he->vertex->texture[0] );
+            }
             
             he = he->next;
          }
@@ -428,8 +454,17 @@ namespace DDG
           e != mesh.edges.end();
           e ++ )
       {
-         glVertex3dv( &e->he->vertex->position[0] );
-         glVertex3dv( &e->he->flip->vertex->position[0] );
+            if( render3D )
+            {
+               glVertex3dv( &e->he->vertex->position[0] );
+               glVertex3dv( &e->he->flip->vertex->position[0] );
+            }
+            else
+            {
+               glVertex3dv( &e->he->vertex->texture[0] );
+               glVertex3dv( &e->he->flip->vertex->texture[0] );
+            }
+         
       }
       glEnd();
       
@@ -452,7 +487,14 @@ namespace DDG
       {
          if( v->isIsolated() )
          {
-            glVertex3dv( &v->position[0] );
+            if( render3D )
+            {
+               glVertex3dv( &v->position[0] );
+            }
+            else
+            {
+               glVertex3dv( &v->texture[0] );
+            }
          }
       }
       glEnd();
@@ -468,7 +510,14 @@ namespace DDG
       {
          glLoadName(v->index);
          glBegin(GL_POINTS);
-         glVertex3dv( &v->position[0] );
+         if( render3D )
+         {
+            glVertex3dv( &v->position[0] );
+         }
+         else
+         {
+            glVertex3dv( &v->texture[0] );
+         }
          glEnd();
       }
    }
@@ -489,7 +538,17 @@ namespace DDG
           v != mesh.vertices.end();
           v ++ )
       {
-         if( v->tag ) glVertex3dv( &v->position[0] );
+         if( v->tag ) 
+         {
+            if( render3D )
+            {
+               glVertex3dv( &v->position[0] );
+            }
+            else
+            {
+               glVertex3dv( &v->texture[0] );
+            }
+         }
       }
       glEnd();
       

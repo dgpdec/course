@@ -84,6 +84,7 @@ namespace DDG
       {
          indexElements();
          normalize();
+         for( VertexIter v = vertices.begin(); v != vertices.end(); v++ ) v->texture = v->position;
       }
       return rval;
    }
