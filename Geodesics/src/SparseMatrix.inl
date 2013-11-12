@@ -590,8 +590,8 @@ namespace DDG
       {
          x = B*x;
          solve( A, x, x );
-         x -= dot( x, Be )*e;
-         x.normalize();
+         x -= dot( x, Be ).conj()*e;
+         x /= dot( x, B*x ).norm(); 
       }
       int t1 = clock();
 
@@ -642,12 +642,13 @@ namespace DDG
       DenseMatrix<T> e( n, 1 );
       e.zero( 1. );
       e /= sqrt( dot( e, B*e ).norm() );
+      DenseMatrix<T> Be = B*e;
 
       for( int iter = 0; iter < maxEigIter; iter++ )
       {
          x = B*x;
          backsolvePositiveDefinite( L, x, x );
-         x -= dot( x, B*e )*e;
+         x -= dot( x, Be ).conj()*e;
          x /= sqrt( dot( x, B*x ).norm() );
       }
       int t1 = clock();

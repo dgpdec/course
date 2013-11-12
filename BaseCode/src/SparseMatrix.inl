@@ -583,14 +583,15 @@ namespace DDG
       int n = A.length();
       DenseMatrix<T> e( n, 1 );
       e.zero( 1. );
-      e /= sqrt( dot( e, B*e ));
-
+      e /= dot( e, B*e ).norm();
+      DenseMatrix<T> Be = B*e;
+      
       for( int iter = 0; iter < maxEigIter; iter++ )
       {
          x = B*x;
          solve( A, x, x );
-         x -= dot( x, B*e )*e;
-         x.normalize();
+         x -= dot( x, Be ).conj()*e;
+         x /= dot( x, B*x ).norm(); 
       }
       int t1 = clock();
 
@@ -631,9 +632,6 @@ namespace DDG
    // solves A x = lambda x for the smallest nonzero eigenvalue lambda
    // A must be positive (semi-)definite; x is used as an initial guess
    {
-      cerr << "Error: A x = lambda B x not properly implemented!" << "\n";
-      exit( 1 );
-
       int t0 = clock();
 
       SparseFactor<T> L;
@@ -643,14 +641,15 @@ namespace DDG
       int n = A.length();
       DenseMatrix<T> e( n, 1 );
       e.zero( 1. );
-      e /= sqrt( dot( e, B*e ));
+      e /= sqrt( dot( e, B*e ).norm() );
+      DenseMatrix<T> Be = B*e;
 
       for( int iter = 0; iter < maxEigIter; iter++ )
       {
          x = B*x;
          backsolvePositiveDefinite( L, x, x );
-         x -= dot( x, B*e )*e;
-         x.normalize();
+         x -= dot( x, Be ).conj()*e;
+         x /= sqrt( dot( x, B*x ).norm() );
       }
       int t1 = clock();
 
