@@ -48,6 +48,7 @@ namespace DDG
       static void mExit( void );
       static void mWireframe( void );
       static void mRender3D( void );
+      static void mQuasiConformal( void );
       static void mZoomIn( void );
       static void mZoomOut( void );
       static void mScreenshot( void );
@@ -61,6 +62,7 @@ namespace DDG
          menuExit,
          menuWireframe,
          menuRender3D,
+         menuQuasiConformal,
          menuZoomIn,
          menuZoomOut,
          menuScreenshot
@@ -84,6 +86,9 @@ namespace DDG
       static void restoreViewerState( void );
       static int windowSize[2];
       
+      static bool renderQuasiConformal;
+      // draw quasi conformal error
+
       static bool render3D;
       // draw 3D or 2D
 
@@ -99,7 +104,14 @@ namespace DDG
       static Shader shader;
       // shader used to determine appearance of surface
    };
+
+   // methods to viz quasi conformal error
+   double faceQCDistortion( FaceCIter f );
+   Vector qcColor( double qc );
+   Vector HSV(double h, double s, double v);
+   double quasiConformalDistortion( Vector p1, Vector p2, Vector p3,
+                                    Vector q1, Vector q2, Vector q3 );
+
 }
 
 #endif
-

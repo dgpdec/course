@@ -21,6 +21,7 @@ namespace DDG
    Shader Viewer::shader;
    bool Viewer::renderWireframe = false;
    bool Viewer::render3D = false;
+   bool Viewer::renderQuasiConformal = false;
    
    void Viewer :: init( void )
    {
@@ -56,6 +57,7 @@ namespace DDG
       glutSetMenu( viewMenu );
       glutAddMenuEntry( "[f] Wireframe",  menuWireframe    );
       glutAddMenuEntry( "[s] Switch 2D/3D",  menuRender3D  );
+      glutAddMenuEntry( "[q] Quasi Conformal Error",  menuQuasiConformal );
       glutAddMenuEntry( "[↑] Zoom In",    menuZoomIn       );
       glutAddMenuEntry( "[↓] Zoom Out",   menuZoomOut      );
       
@@ -104,6 +106,9 @@ namespace DDG
    {
       switch( value )
       {
+         case( menuQuasiConformal ):
+            mQuasiConformal();
+            break;
          case( menuRender3D ):
             mRender3D();
             break;
@@ -125,6 +130,9 @@ namespace DDG
    {
       switch( c )
       {
+         case 'q':
+            mQuasiConformal();
+            break;
          case 's':
             mRender3D();
             break;
@@ -252,6 +260,12 @@ namespace DDG
       updateDisplayList();
    }
    
+   void Viewer :: mQuasiConformal( void )
+   {
+      renderQuasiConformal = !renderQuasiConformal;
+      updateDisplayList();
+   }
+
    void Viewer :: mZoomIn( void )
    {
       camera.zoomIn();
@@ -381,7 +395,6 @@ namespace DDG
 
       glEnable( GL_POLYGON_OFFSET_FILL );
       glPolygonOffset( 1., 1. );
-      glColor3d( 1., .5, .25 );
       drawPolygons();
       glDisable( GL_POLYGON_OFFSET_FILL );
       
@@ -396,11 +409,23 @@ namespace DDG
    
    void Viewer :: drawPolygons( void )
    {
+      if( not renderQuasiConformal )
+      {
+         glColor3d( 1., .5, .25 );
+      }
+
       for( FaceCIter f  = mesh.faces.begin();
           f != mesh.faces.end();
           f ++ )
       {
          if( f->isBoundary() ) continue;
+      
+         if( renderQuasiConformal )
+         {
+            double value = faceQCDistortion( f );
+            Vector color = qcColor( value );
+            glColor3dv( &color[0] );
+         }   
          
          glBegin( GL_POLYGON );
          if( render3D and renderWireframe )
