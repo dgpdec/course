@@ -5,7 +5,9 @@ namespace DDG
 {
    class Application
    {
+	  //
       // TODO: add your code here!!!
+   	  //
    };
 }
 
