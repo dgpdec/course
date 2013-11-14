@@ -3,3 +3,7 @@
 
 *.o
 *.swp
+
+Flatten/Makefile
+
+Flatten/flatten
