@@ -188,7 +188,7 @@ namespace DDG
 
    void Viewer :: mouse( int button, int state, int x, int y )
    {
-      if( ( glutGetModifiers() and GLUT_ACTIVE_SHIFT) and state == GLUT_UP )
+      if( ( glutGetModifiers() & GLUT_ACTIVE_SHIFT) and state == GLUT_UP )
          pickVertex(x, y);
       else
          camera.mouse( button, state, x, y );
