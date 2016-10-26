@@ -37,6 +37,7 @@
 #include <cholmod.h>
 #include <vector>
 #include <map>
+#include <iostream>
 #include "Types.h"
 
 namespace DDG

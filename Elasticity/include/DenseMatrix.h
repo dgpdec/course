@@ -34,6 +34,7 @@
 #include "Types.h"
 
 #include <vector>
+#include <iostream>
 
 namespace DDG
 {
