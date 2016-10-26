@@ -10,7 +10,14 @@
 #ifndef DDG_VIEWER_H
 #define DDG_VIEWER_H
 
+#ifdef __APPLE__
 #include <GLUT/glut.h>
+#else
+#include <GLES3/gl3.h>
+#include <GL/glut.h>
+#include <GL/freeglut.h>
+#endif
+
 #include "Mesh.h"
 #include "Camera.h"
 #include "Shader.h"
