@@ -19,8 +19,8 @@ namespace DDG
       resize( m, n );
 
       double* pr = (double*) cData->x;
-      UF_long* ir = (UF_long*) cData->i;
-      UF_long* jc = (UF_long*) cData->p;
+      SuiteSparse_long* ir = (SuiteSparse_long*) cData->i;
+      SuiteSparse_long* jc = (SuiteSparse_long*) cData->p;
 
       // iterate over columns
       for( int col = 0; col < n; col++ )
@@ -54,8 +54,8 @@ namespace DDG
       resize( m, n );
 
       double* pr = (double*) cData->x;
-      UF_long* ir = (UF_long*) cData->i;
-      UF_long* jc = (UF_long*) cData->p;
+      SuiteSparse_long* ir = (SuiteSparse_long*) cData->i;
+      SuiteSparse_long* jc = (SuiteSparse_long*) cData->p;
 
       // iterate over columns
       for( int col = 0; col < n; col++ )
@@ -199,8 +199,8 @@ namespace DDG
       int t0 = clock();
       cholmod_sparse* Ac = A.to_cholmod();
       int n = Ac->nrow;
-      UF_long* Ap = (UF_long*) Ac->p;
-      UF_long* Ai = (UF_long*) Ac->i;
+      SuiteSparse_long* Ap = (SuiteSparse_long*) Ac->p;
+      SuiteSparse_long* Ai = (SuiteSparse_long*) Ac->i;
       double*  Ax =  (double*) Ac->x;
       void* Symbolic;
       void* Numeric;
