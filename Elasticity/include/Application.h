@@ -150,7 +150,6 @@ namespace DDG
              v ++ )
          {
             Complex sum;
-            Vector pi = v->position;
             HalfEdgeIter he = v->he;
             do
             {

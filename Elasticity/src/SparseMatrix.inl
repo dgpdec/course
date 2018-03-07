@@ -391,8 +391,8 @@ namespace DDG
 
       // build compressed matrix (note that EntryMap stores entries in column-major order)
        double* pr =  (double*) cData->x;
-      UF_long* ir = (UF_long*) cData->i;
-      UF_long* jc = (UF_long*) cData->p;
+      SuiteSparse_long* ir = (SuiteSparse_long*) cData->i;
+      SuiteSparse_long* jc = (SuiteSparse_long*) cData->p;
       int i = 0;
       int j = -1;
       for( const_iterator e  = begin();
@@ -499,8 +499,8 @@ namespace DDG
       int t0 = clock();
       cholmod_sparse* Ac = A.to_cholmod();
       int n = Ac->nrow;
-      UF_long* Ap = (UF_long*) Ac->p;
-      UF_long* Ai = (UF_long*) Ac->i;
+      SuiteSparse_long* Ap = (SuiteSparse_long*) Ac->p;
+      SuiteSparse_long* Ai = (SuiteSparse_long*) Ac->i;
       double*  Ax =  (double*) Ac->x;
       void* Symbolic;
       void* Numeric;

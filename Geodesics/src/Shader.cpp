@@ -133,7 +133,7 @@ namespace DDG
       string line;
       while( getline( in, line ))
       {
-         source += line;
+         source += line + '\n';
       }
 
       return true;
